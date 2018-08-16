@@ -47,7 +47,7 @@ extension XZFTailorView {
         for i in 0..<4 {
             let cornerView = UIView()
             cornerView.bounds = CGRect(x: 0, y: 0, width: 30, height: 30)
-            cornerView.backgroundColor = UIColor.white
+            cornerView.backgroundColor = UIColor.clear
             
             let row = i / 2
             let col = i % 2
@@ -62,7 +62,7 @@ extension XZFTailorView {
         for i in 0..<4 {
             let sideView = UIView()
             sideView.tag = 2000 + i
-            sideView.backgroundColor = UIColor.blue
+            sideView.backgroundColor = UIColor.clear
 
             let row = i / 2
             let col = i % 2
@@ -81,17 +81,63 @@ extension XZFTailorView {
         let panView = panGesture.view
         let point = panGesture.translation(in: panView)
         print(point)
-        if (panView?.tag)! < 2000 {
+        
+        switch panView?.tag {
+        case 1000:
             clipFrame.origin.x += point.x
             clipFrame.origin.y += point.y
-        } else if panView?.tag == 2000 || panView?.tag == 2002 {
-            clipFrame.origin.x += point.x
-        } else {
+            clipFrame.size.width -= point.x
+            clipFrame.size.height -= point.y
+        case 1001:
             clipFrame.origin.y += point.y
+            clipFrame.size.width += point.x
+            clipFrame.size.height -= point.y
+        case 1002:
+            clipFrame.origin.x += point.x
+            clipFrame.size.width -= point.x
+            clipFrame.size.height += point.y
+        case 1003:
+            clipFrame.size.width += point.x
+            clipFrame.size.height += point.y
+        case 2000:
+            clipFrame.origin.x += point.x
+            clipFrame.size.width -= point.x
+        case 2001:
+            clipFrame.origin.y += point.y
+            clipFrame.size.height -= point.y
+        case 2002:
+            clipFrame.size.width += point.x
+        case 2003:
+            clipFrame.size.height += point.y
+
+        default:
+            break
         }
         
         panGesture.setTranslation(.zero, in: panView)
         drawClipPath()
+        handleCView()
+    }
+    
+    //MARK: 处理边角view
+    func handleCView() {
+        for view in self.subviews {
+            if view.isMember(of: UIView.self) {
+                let tag = view.tag
+                if tag > 999 && tag < 1004 {
+                    let row = (tag - 1000) / 2
+                    let col = (tag - 1000) % 2
+                    
+                    view.center = CGPoint(x: clipFrame.minX + clipFrame.width * CGFloat(col), y: clipFrame.minY + clipFrame.height * CGFloat(row))
+                } else if tag > 1999 && tag < 2004 {
+                    let row = (tag - 2000) / 2
+                    let col = (tag - 2000) % 2
+                    
+                    view.bounds = CGRect(x: 0, y: 0, width: col == 0 ? 30 : clipFrame.width - 30 * 2 , height: col == 0 ? clipFrame.height - 30 * 2 : 30)
+                    view.center = CGPoint(x: col == 0 ? (clipFrame.origin.x + CGFloat(row) * clipFrame.width) : clipFrame.midX, y: col == 0 ? clipFrame.midY : (clipFrame.origin.y + CGFloat(row) * clipFrame.height))
+                }
+            }
+        }
     }
     
     //MARK: 绘制阴影
