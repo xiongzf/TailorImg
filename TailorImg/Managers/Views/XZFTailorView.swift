@@ -82,9 +82,17 @@ extension XZFTailorView {
     
     // 手势处理
     @objc func panGestures(panGesture: UIPanGestureRecognizer) {
+        let pView = panGesture.view
+        handleClipFrame(panGesture: panGesture)
+        drawClipPath()
+        handleCView()
+        handleSide(tag: pView?.tag)
+    }
+    
+    //MARK: 处理裁剪框大小
+    func handleClipFrame(panGesture: UIPanGestureRecognizer) {
         let panView = panGesture.view
         let point = panGesture.translation(in: panView)
-        print(point)
         
         switch panView?.tag {
         case 1000:
@@ -116,14 +124,12 @@ extension XZFTailorView {
         case 3000:
             panView?.center.x += point.x
             panView?.center.y += point.y
-
+            
         default:
             break
         }
         
         panGesture.setTranslation(.zero, in: panView)
-        drawClipPath()
-        handleCView()
     }
     
     //MARK: 处理边角view
@@ -145,6 +151,32 @@ extension XZFTailorView {
                 }
             }
         }
+    }
+    
+    //MARK: 处理越界问题
+    func handleSide(tag: Int?) {
+        if tag == 3000 {
+            if imgView.frame.minX > clipFrame.minX {
+                imgView.frame.origin.x = clipFrame.minX
+            } else if imgView.frame.maxX < clipFrame.maxX {
+                imgView.frame.origin.x = clipFrame.maxX - imgView.XZF_width
+            } else if imgView.frame.minY > clipFrame.minY {
+                imgView.frame.origin.y = clipFrame.minY
+            } else if imgView.frame.maxY < clipFrame.maxY {
+                imgView.frame.origin.y = clipFrame.maxY - imgView.XZF_height
+            }
+        } else {
+            if imgView.frame.minX > clipFrame.minX {
+                clipFrame.origin.x = imgView.frame.minX
+            } else if imgView.frame.maxX < clipFrame.maxX {
+                clipFrame.size.width = imgView.frame.maxX - clipFrame.minX
+            } else if imgView.frame.minY > clipFrame.minY {
+                clipFrame.origin.y = imgView.frame.minY
+            } else if imgView.frame.maxY < clipFrame.maxY {
+                clipFrame.size.height = imgView.frame.maxY - clipFrame.midY
+            }
+        }
+        
     }
     
     //MARK: 绘制阴影
