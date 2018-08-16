@@ -74,9 +74,13 @@ extension XZFTailorView {
             sideView.tag = 2000 + i
             self.addSubview(sideView)
         }
+        
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(panGestures(panGesture:)))
+        imgView.addGestureRecognizer(pan)
+        imgView.tag = 3000
     }
     
-    
+    // 手势处理
     @objc func panGestures(panGesture: UIPanGestureRecognizer) {
         let panView = panGesture.view
         let point = panGesture.translation(in: panView)
@@ -109,6 +113,9 @@ extension XZFTailorView {
             clipFrame.size.width += point.x
         case 2003:
             clipFrame.size.height += point.y
+        case 3000:
+            panView?.center.x += point.x
+            panView?.center.y += point.y
 
         default:
             break
