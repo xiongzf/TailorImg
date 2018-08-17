@@ -96,15 +96,25 @@ extension XZFTailorView {
         
         switch panView?.tag {
         case 1000:
+            if point.x < 0 && clipFrame.minX == imgView.frame.minX || point.y < 0 && clipFrame.minY == imgView.frame.minY {
+                return
+            }
+            
             clipFrame.origin.x += point.x
             clipFrame.origin.y += point.y
             clipFrame.size.width -= point.x
             clipFrame.size.height -= point.y
         case 1001:
+            if point.y < 0 && clipFrame.minY == imgView.frame.minY {
+                return
+            }
             clipFrame.origin.y += point.y
             clipFrame.size.width += point.x
             clipFrame.size.height -= point.y
         case 1002:
+            if point.x < 0 && clipFrame.minX == imgView.frame.minX || point.y < 0 && clipFrame.maxY == imgView.frame.maxY {
+                return
+            }
             clipFrame.origin.x += point.x
             clipFrame.size.width -= point.x
             clipFrame.size.height += point.y
@@ -112,9 +122,15 @@ extension XZFTailorView {
             clipFrame.size.width += point.x
             clipFrame.size.height += point.y
         case 2000:
+            if point.x < 0 && clipFrame.minX == imgView.frame.minX {
+                return
+            }
             clipFrame.origin.x += point.x
             clipFrame.size.width -= point.x
         case 2001:
+            if point.y < 0 && clipFrame.minY == imgView.frame.minY {
+                return
+            }
             clipFrame.origin.y += point.y
             clipFrame.size.height -= point.y
         case 2002:
@@ -122,6 +138,9 @@ extension XZFTailorView {
         case 2003:
             clipFrame.size.height += point.y
         case 3000:
+            if point.y < 0 && clipFrame.maxY == imgView.frame.maxY || point.y > 0 && clipFrame.minY == imgView.frame.minY || point.x < 0 && clipFrame.maxX == imgView.frame.maxX || point.x > 0 && clipFrame.minX == imgView.frame.minX {
+                return
+            }
             panView?.center.x += point.x
             panView?.center.y += point.y
             
@@ -130,6 +149,7 @@ extension XZFTailorView {
         }
         
         panGesture.setTranslation(.zero, in: panView)
+        
     }
     
     //MARK: 处理边角view
@@ -166,14 +186,14 @@ extension XZFTailorView {
                 imgView.frame.origin.y = clipFrame.maxY - imgView.XZF_height
             }
         } else {
-            if imgView.frame.minX > clipFrame.minX {
+            if imgView.frame.minX >= clipFrame.minX {
                 clipFrame.origin.x = imgView.frame.minX
-            } else if imgView.frame.maxX < clipFrame.maxX {
+            } else if imgView.frame.maxX <= clipFrame.maxX {
                 clipFrame.size.width = imgView.frame.maxX - clipFrame.minX
-            } else if imgView.frame.minY > clipFrame.minY {
+            } else if imgView.frame.minY >= clipFrame.minY {
                 clipFrame.origin.y = imgView.frame.minY
-            } else if imgView.frame.maxY < clipFrame.maxY {
-                clipFrame.size.height = imgView.frame.maxY - clipFrame.midY
+            } else if imgView.frame.maxY <= clipFrame.maxY {
+                clipFrame.size.height = imgView.frame.maxY - clipFrame.minY
             }
         }
         
